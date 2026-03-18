@@ -8,6 +8,7 @@ from datetime import datetime, date
 from supabase import create_client
 from config import settings
 import httpx
+from routers.reports_export import build_weekly_report
 
 supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
@@ -62,10 +63,35 @@ async def fire_due_reminders():
     print(f"[{current_time}] Fired {len(reminders)} reminders, {len(pending_meds)} medicine alerts")
 
 
+async def maybe_generate_weekly_reports():
+    """Every Sunday at 8 PM, generate reports for all patients."""
+    now = datetime.utcnow()
+    if now.weekday() == 6 and now.hour == 20 and now.minute < 2:  # Sunday 8PM
+        patients = supabase.table("patient_profiles").select("id").execute().data or []
+        for p in patients:
+            try:
+                # Call generate endpoint for each patient
+                today = date.today()
+                ws = today - timedelta(days=today.weekday())
+                we = ws + timedelta(days=6)
+                
+                # We need a report record first
+                existing = supabase.table("weekly_reports").select("id").eq("patient_id", p["id"]).eq("week_start", str(ws)).execute().data
+                if not existing:
+                    record = supabase.table("weekly_reports").insert({
+                        "patient_id": p["id"],
+                        "week_start": str(ws),
+                        "week_end": str(we),
+                    }).execute().data[0]
+                    await build_weekly_report(record["id"], p["id"], ws, we)
+            except Exception as e:
+                print(f"[AUTO REPORT] Failed for {p['id']}: {e}")
+
 async def main():
     print("🔔 NovaCare notification scheduler started")
     while True:
         await fire_due_reminders()
+        await maybe_generate_weekly_reports()
         await asyncio.sleep(60)  # Check every minute
 
 if __name__ == "__main__":

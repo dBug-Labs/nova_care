@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from config import settings
-from routers import auth, patients, vitals, ai_nurse, lab_reports, reminders, doctors
+from routers import auth, patients, vitals, ai_nurse, lab_reports, reminders, doctors, reports_export
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,6 +32,7 @@ app.include_router(ai_nurse.router, prefix="/ai", tags=["ai-nurse"])
 app.include_router(lab_reports.router, prefix="/labs", tags=["lab-reports"])
 app.include_router(reminders.router, prefix="/reminders", tags=["reminders"])
 app.include_router(doctors.router, prefix="/doctors", tags=["doctors"])
+app.include_router(reports_export.router, prefix="/reports-export", tags=["reports-export"])
 
 @app.get("/health")
 async def health(): return {"status": "ok", "service": "NovaCare API"}
