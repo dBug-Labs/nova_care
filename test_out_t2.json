@@ -1,0 +1,60 @@
+{
+  "score": "10/11",
+  "results": [
+    {
+      "name": "WF1 - All 7 routers registered in main.py",
+      "ok": true,
+      "detail": "auth,vitals,ai,labs,reminders,doctors,reports OK"
+    },
+    {
+      "name": "WF3 - Patient /auth/signup",
+      "ok": true,
+      "detail": "status=200 created"
+    },
+    {
+      "name": "WF3 - Patient signin + JWT",
+      "ok": true,
+      "detail": "id=3834786b-993..."
+    },
+    {
+      "name": "WF2 - Auto BMI trigger (height=170,weight=80->BMI 27.7)",
+      "ok": true,
+      "detail": "got bmi=27.68, expected=27.68"
+    },
+    {
+      "name": "WF2 - Auto critical vitals flag trigger (BP=190/120, sugar=350)",
+      "ok": true,
+      "detail": "flagged=True, risk=critical"
+    },
+    {
+      "name": "WF4 - Patient onboarding (conditions, blood group, allergies)",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "WF4 - Mark onboarding_complete=true",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "WF3 - Doctor /auth/signup",
+      "ok": false,
+      "detail": "status=400"
+    },
+    {
+      "name": "WF3 - Doctor signin + JWT",
+      "ok": true,
+      "detail": "id=52df8949-1b2..."
+    },
+    {
+      "name": "WF4 - Doctor profile (specialty, reg number)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "WF2 - RLS: patient cannot read other patient profile",
+      "ok": true,
+      "detail": "Returned 0 rows - should be 0 (RLS working)"
+    }
+  ]
+}

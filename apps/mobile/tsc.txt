@@ -1,0 +1,4 @@
+﻿app/(auth)/signup.tsx(62,11): error TS2783: 'key' is specified more than once, so this usage will be overwritten.
+app/(auth)/signup.tsx(64,11): error TS2783: 'placeholder' is specified more than once, so this usage will be overwritten.
+lib/notifications.ts(6,35): error TS2322: Type 'Promise<{ shouldShowAlert: true; shouldPlaySound: true; shouldSetBadge: true; }>' is not assignable to type 'Promise<NotificationBehavior>'.
+  Type '{ shouldShowAlert: true; shouldPlaySound: true; shouldSetBadge: true; }' is missing the following properties from type 'NotificationBehavior': shouldShowBanner, shouldShowList

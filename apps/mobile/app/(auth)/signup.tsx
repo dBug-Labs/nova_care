@@ -65,7 +65,9 @@ export default function SignUpScreen() {
           placeholderTextColor={Colors.textMuted}
           value={form[field.key as keyof typeof form]}
           onChangeText={v => setForm(f => ({ ...f, [field.key]: v }))}
-          {...field}
+          autoCapitalize={field.autoCapitalize}
+          keyboardType={field.keyboardType}
+          secureTextEntry={field.secureTextEntry}
         />
       ))}
 

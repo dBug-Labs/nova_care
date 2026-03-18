@@ -1,0 +1,70 @@
+{
+  "score": "9/13",
+  "results": [
+    {
+      "name": "ENV SUPABASE_URL set",
+      "ok": true,
+      "detail": "https://ulwhynsfvmdu..."
+    },
+    {
+      "name": "ENV SUPABASE_SERVICE_KEY set",
+      "ok": true,
+      "detail": "eyJhbGciOiJIUzI1NiIs..."
+    },
+    {
+      "name": "ENV GROQ_API_KEY set",
+      "ok": true,
+      "detail": "gsk_P0m3Xvsi5a1BReVl..."
+    },
+    {
+      "name": "ENV OPENROUTER_API_KEY set",
+      "ok": true,
+      "detail": "sk-or-v1-aec7c1b28a8..."
+    },
+    {
+      "name": "ENV GOOGLE_AI_API_KEY set",
+      "ok": true,
+      "detail": "AIzaSyAbjJD5dve_pzHk..."
+    },
+    {
+      "name": "API /health endpoint",
+      "ok": true,
+      "detail": "{\"status\":\"ok\",\"service\":\"NovaCare API\"}"
+    },
+    {
+      "name": "All 15 API routes registered",
+      "ok": false,
+      "detail": "Missing: ['/ai/chat', '/ai/recommendations', '/ai/start-assessment', '/doctors/patients']"
+    },
+    {
+      "name": "Groq API (llama-3.1-8b-instant)",
+      "ok": true,
+      "detail": "reply='OK' status=200"
+    },
+    {
+      "name": "OpenRouter API (gemini free)",
+      "ok": false,
+      "detail": "status=404 {\"error\":{\"message\":\"No endpoints found for google/gemini-2."
+    },
+    {
+      "name": "Google AI (gemini-2.0-flash)",
+      "ok": false,
+      "detail": "status=429"
+    },
+    {
+      "name": "Supabase DB reachable",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "All 14 DB tables exist (migrations 001\u2013007)",
+      "ok": true,
+      "detail": "All present"
+    },
+    {
+      "name": "Supabase Storage bucket 'lab-reports'",
+      "ok": false,
+      "detail": "NOT FOUND \u2014 create it in Supabase Dashboard \u2192 Storage \u2192 New bucket \u2192 name: lab-reports \u2192 Public ON"
+    }
+  ]
+}

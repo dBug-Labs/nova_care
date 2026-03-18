@@ -12,7 +12,7 @@ export default function WeeklyReportsScreen() {
   });
 
   const generateMutation = useMutation({
-    mutationFn: () => api.post('/reports-export/generate-weekly'),
+    mutationFn: () => api.post('/reports-export/generate-weekly', {}),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['weekly-reports'] });
       Alert.alert('Generating!', 'Your weekly report is being prepared. It will appear here in a moment.');
@@ -20,7 +20,7 @@ export default function WeeklyReportsScreen() {
   });
 
   const shareMutation = useMutation({
-    mutationFn: (id: string) => api.post(`/reports-export/weekly/${id}/share-with-doctor`),
+    mutationFn: (id: string) => api.post(`/reports-export/weekly/${id}/share-with-doctor`, {}),
     onSuccess: () => Alert.alert('Shared!', 'Your report has been shared with your doctor.'),
   });
 

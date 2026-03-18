@@ -1,23 +1,47 @@
-import axios from 'axios';
 import { supabase } from './supabase';
 
-const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
-  timeout: 30000,
-});
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// Attach Supabase JWT to every request
-api.interceptors.request.use(async (config) => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
-  }
-  return config;
-});
+const api = {
+  async request(endpoint: string, options: any = {}) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    } as any;
 
-api.interceptors.response.use(
-  (res) => res.data,
-  (err) => Promise.reject(err.response?.data || err.message)
-);
+    if (session?.access_token) {
+      headers.Authorization = `Bearer ${session.access_token}`;
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+      body: options.data ? JSON.stringify(options.data) : options.body,
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw data || new Error(response.statusText);
+    }
+    return data;
+  },
+
+  get(endpoint: string, options: any = {}) {
+    return this.request(endpoint, { ...options, method: 'GET' });
+  },
+
+  post(endpoint: string, data: any, options: any = {}) {
+    return this.request(endpoint, { ...options, method: 'POST', data });
+  },
+
+  put(endpoint: string, data: any, options: any = {}) {
+    return this.request(endpoint, { ...options, method: 'PUT', data });
+  },
+
+  delete(endpoint: string, options: any = {}) {
+    return this.request(endpoint, { ...options, method: 'DELETE' });
+  },
+};
 
 export default api;

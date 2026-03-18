@@ -1,0 +1,50 @@
+{
+  "score": "6/9",
+  "results": [
+    {
+      "name": "WF5 - Nova streaming chat (SSE)",
+      "ok": true,
+      "detail": "session_id=f7148650-e34... response_len=6963"
+    },
+    {
+      "name": "WF5 - Chat messages saved to DB",
+      "ok": false,
+      "detail": "0 messages (user=N, assistant=N)"
+    },
+    {
+      "name": "WF5 - Crisis detection (chest pain -> emergency response)",
+      "ok": true,
+      "detail": "Response snippet: '\u26a0\ufe0f this sounds urgent. please call emergency services (112 in india) right now or ask someone nearby...'"
+    },
+    {
+      "name": "WF5 - Start health assessment",
+      "ok": true,
+      "detail": "First question: 'How have you been feeling overall this week on a scale of 1 ...'"
+    },
+    {
+      "name": "WF5 - Assessment respond -> next question",
+      "ok": true,
+      "detail": "Next Q: 'Have you been taking all your medicines on time?...'"
+    },
+    {
+      "name": "WF5 - AI recommendations endpoint",
+      "ok": true,
+      "detail": "1 recs -> 'Drink Water'"
+    },
+    {
+      "name": "WF5 - Recommendation fields (type, priority)",
+      "ok": true,
+      "detail": "types=['lifestyle']"
+    },
+    {
+      "name": "WF6 - Lab report upload",
+      "ok": false,
+      "detail": "report_id=none..."
+    },
+    {
+      "name": "WF6 - Lab reports list endpoint",
+      "ok": false,
+      "detail": "0 report(s) in list"
+    }
+  ]
+}

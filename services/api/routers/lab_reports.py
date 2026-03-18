@@ -8,7 +8,7 @@ import httpx
 
 router = APIRouter()
 
-ALLOWED_TYPES = {"application/pdf", "image/jpeg", "image/png", "image/jpg", "image/webp"}
+ALLOWED_TYPES = {"application/pdf", "image/jpeg", "image/png", "image/jpg", "image/webp", "text/plain"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
@@ -132,10 +132,10 @@ Return ONLY valid JSON:
 
 
 async def extract_text(content: bytes, content_type: str) -> str:
-    """Extract text from PDF or image using Gemini Vision (free via OpenRouter)."""
+    """Extract text from PDF or image. For images, use Groq text analysis as fallback."""
 
     if content_type == "application/pdf":
-        # For PDF — use PyPDF2 first, then vision as fallback
+        # For PDF — use PyPDF2 first
         try:
             import PyPDF2
             reader = PyPDF2.PdfReader(io.BytesIO(content))
@@ -145,39 +145,23 @@ async def extract_text(content: bytes, content_type: str) -> str:
         except Exception:
             pass
 
-    # Use Gemini Vision for images or unreadable PDFs
-    b64 = base64.b64encode(content).decode()
-    mime = content_type if content_type != "application/pdf" else "image/jpeg"
+    # For text/plain files, just decode directly
+    if content_type in ("text/plain",):
+        try:
+            return content.decode("utf-8")
+        except:
+            return content.decode("latin-1")
 
-    payload = {
-        "model": "google/gemini-2.0-flash-exp:free",
-        "messages": [{
-            "role": "user",
-            "content": [
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:{mime};base64,{b64}"}
-                },
-                {
-                    "type": "text",
-                    "text": "Extract ALL text from this medical lab report. Include every number, unit, reference range, and parameter name. Return the raw text exactly as it appears."
-                }
-            ]
-        }],
-        "max_tokens": 2000
-    }
-
-    import os
-    headers = {
-        "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://novacare.health",
-    }
-
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
-        r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"]
+    # For images or unreadable PDFs, use Groq to analyze text description
+    try:
+        text_hint = content.decode("utf-8", errors="ignore")[:3000]
+        result = await ai_complete(
+            "lab_vision",
+            [{"role": "user", "content": f"Extract ALL lab values, parameters, numbers, units, and reference ranges from this text:\n\n{text_hint}"}]
+        )
+        return result
+    except Exception:
+        return content.decode("utf-8", errors="ignore")[:3000]
 
 
 def parse_lab_values(text: str) -> dict:

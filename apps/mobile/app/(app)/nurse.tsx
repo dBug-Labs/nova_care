@@ -3,9 +3,11 @@ import {
   View, Text, TextInput, TouchableOpacity, FlatList,
   StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert
 } from 'react-native';
+import { Audio } from 'expo-av';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 import { Colors } from '../../constants/colors';
+import { supabase } from '../../lib/supabase';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -17,6 +19,10 @@ export default function NurseScreen() {
     addMessage, setSessionId, setStreaming, appendStreamToken, commitStreamedMessage
   } = useChatStore();
   const profile = useAuthStore(s => s.profile);
+
+  const [recording, setRecording] = useState<Audio.Recording | undefined>();
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const name = profile?.full_name?.split(' ')[0] || 'there';
 
@@ -34,7 +40,7 @@ export default function NurseScreen() {
     setStreaming(true);
 
     try {
-      const { data: { session } } = await import('../../lib/supabase').then(m => m.supabase.auth.getSession());
+      const session = (await supabase.auth.getSession()).data.session;
       const token = session?.access_token;
 
       const response = await fetch(`${API_URL}/ai/chat`, {
@@ -43,33 +49,111 @@ export default function NurseScreen() {
         body: JSON.stringify({ message: text, session_id: sessionId }),
       });
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        if (!reader) break;
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
+      let fullText = '';
+      
+      if (response.body && typeof response.body.getReader === 'function') {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ''; // Keep the incomplete last line in the buffer
+          
+          for (const line of lines) {
+            if (!line.trim() || !line.startsWith('data: ')) continue;
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.token) appendStreamToken(data.token);
+              if (data.session_id && !sessionId) setSessionId(data.session_id);
+              if (data.done) commitStreamedMessage();
+              if (data.error) Alert.alert('Error', data.error);
+            } catch { /* ignore parse errors */ }
+          }
+        }
+      } else {
+        // Fallback for React Native without Web Streams API
+        const text = await response.text();
+        const lines = text.split('\n');
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           try {
             const data = JSON.parse(line.slice(6));
             if (data.token) appendStreamToken(data.token);
             if (data.session_id && !sessionId) setSessionId(data.session_id);
-            if (data.done) commitStreamedMessage();
-            if (data.error) { setStreaming(false); Alert.alert('Error', data.error); }
+            if (data.error) Alert.alert('Error', data.error);
           } catch { /* ignore parse errors */ }
         }
       }
+      
+      // Ensure we always stop streaming and commit when the connection closes successfully
+      commitStreamedMessage();
+      setStreaming(false);
+
     } catch (err: any) {
       setStreaming(false);
-      Alert.alert('Connection Error', 'Could not reach Nova. Please check your connection.');
+      Alert.alert('Connection Error', `Failed to reach: ${API_URL}/ai/chat\n\nDetails: ${err.message || err}`);
     }
   };
+
+  async function startRecording() {
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (permission.status !== 'granted') {
+        Alert.alert('Permission Denied', 'Please grant microphone access to use voice chat.');
+        return;
+      }
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      setRecording(recording);
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Failed to start recording', err);
+    }
+  }
+
+  async function stopRecording() {
+    if (!recording) return;
+    try {
+      setIsRecording(false);
+      setIsTranscribing(true);
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(undefined);
+
+      if (!uri) { setIsTranscribing(false); return; }
+
+      const session = (await supabase.auth.getSession()).data.session;
+      const token = session?.access_token;
+      
+      const formData = new FormData();
+      formData.append('file', {
+        uri,
+        name: 'audio.m4a',
+        type: 'audio/m4a'
+      } as any);
+
+      const response = await fetch(`${API_URL}/ai/transcribe`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await response.json();
+      
+      if (data.success && data.text) {
+        setInput((prev) => (prev ? prev + ' ' + data.text : data.text));
+      } else {
+        Alert.alert('Transcription Failed', data.error || 'Could not transcribe audio.');
+      }
+    } catch (err) {
+      Alert.alert('Upload Error', 'Failed to upload audio. Please check connection.');
+      console.error(err);
+    } finally {
+      setIsTranscribing(false);
+    }
+  }
 
   const quickPrompts = [
     "How am I doing today?", "I forgot my medicine", "I have a headache", "Check my health"
@@ -146,20 +230,35 @@ export default function NurseScreen() {
       <View style={styles.inputRow}>
         <TextInput
           style={styles.input}
-          placeholder="Ask Nova anything about your health..."
+          placeholder={isRecording ? "Recording... (Tap mic to stop)" : (isTranscribing ? "Transcribing..." : "Ask Nova anything about your health...")}
           placeholderTextColor={Colors.textMuted}
           value={input}
           onChangeText={setInput}
           multiline
           maxLength={500}
+          editable={!isRecording && !isTranscribing && !streaming}
         />
         <TouchableOpacity
-          style={[styles.sendBtn, (!input.trim() || streaming) && styles.sendBtnDisabled]}
-          onPress={sendMessage}
-          disabled={!input.trim() || streaming}
+          style={[styles.sendBtn, isRecording && { backgroundColor: Colors.danger }, isTranscribing && styles.sendBtnDisabled]}
+          onPress={isRecording ? stopRecording : startRecording}
+          disabled={isTranscribing || streaming}
         >
-          <Text style={styles.sendIcon}>↑</Text>
+          {isTranscribing ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.sendIcon}>{isRecording ? "◼" : "🎙"}</Text>
+          )}
         </TouchableOpacity>
+
+        {!!input.trim() && (
+          <TouchableOpacity
+            style={[styles.sendBtn, streaming && styles.sendBtnDisabled]}
+            onPress={sendMessage}
+            disabled={streaming}
+          >
+            <Text style={styles.sendIcon}>↑</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <Text style={styles.disclaimer}>Nova provides health guidance only — not medical advice.</Text>

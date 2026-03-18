@@ -13,6 +13,7 @@ export default function DoctorLayout() {
       <Tabs.Screen name="index"   options={{ title: 'Patients',  tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👥</Text> }} />
       <Tabs.Screen name="alerts"  options={{ title: 'Alerts',    tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🔔</Text> }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile',   tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text> }} />
+      <Tabs.Screen name="patient" options={{ href: null }} />
     </Tabs>
   );
 }

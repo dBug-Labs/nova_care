@@ -7,6 +7,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -21,7 +23,15 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
   if (finalStatus !== 'granted') return null;
 
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
+  let token;
+  try {
+    token = (await Notifications.getExpoPushTokenAsync({
+      projectId: process.env.EXPO_PROJECT_ID || '00000000-0000-0000-0000-000000000000'
+    })).data;
+  } catch (err) {
+    console.warn('Failed to get push token:', err);
+    return null;
+  }
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
@@ -32,7 +42,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
 
   // Save token to backend
-  try { await api.post(`/reminders/push-token?token=${token}`); } catch {}
+  try { await api.post(`/reminders/push-token?token=${token}`, {}); } catch {}
 
   return token;
 }

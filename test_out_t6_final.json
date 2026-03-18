@@ -1,0 +1,125 @@
+{
+  "overall_score": "15/19",
+  "overall_pct": 78,
+  "phases": {
+    "Phase 1 - Auth & Schema": {
+      "passed": 4,
+      "total": 5,
+      "tests": [
+        {
+          "name": "API server running",
+          "ok": true,
+          "detail": "http://localhost:8000"
+        },
+        {
+          "name": "All DB tables exist (9 core)",
+          "ok": false,
+          "detail": "missing:['profiles']"
+        },
+        {
+          "name": "Patient JWT token valid",
+          "ok": true,
+          "detail": "from T2"
+        },
+        {
+          "name": "Doctor JWT token valid",
+          "ok": true,
+          "detail": "from T2"
+        },
+        {
+          "name": "Auto-BMI trigger works",
+          "ok": true,
+          "detail": "bmi=27.68"
+        }
+      ]
+    },
+    "Phase 2 - AI & Lab Reports": {
+      "passed": 2,
+      "total": 4,
+      "tests": [
+        {
+          "name": "Nova streaming chat works",
+          "ok": true,
+          "detail": "status=200, len=5012"
+        },
+        {
+          "name": "AI recommendations endpoint",
+          "ok": true,
+          "detail": "1 recommendations"
+        },
+        {
+          "name": "Lab reports endpoint",
+          "ok": false,
+          "detail": "0 report(s)"
+        },
+        {
+          "name": "At least 1 report AI-analyzed",
+          "ok": false,
+          "detail": "no reports"
+        }
+      ]
+    },
+    "Phase 3 - Tracking & Meds": {
+      "passed": 5,
+      "total": 5,
+      "tests": [
+        {
+          "name": "Today summary endpoint",
+          "ok": true,
+          "detail": "vitals=Y wellness=N"
+        },
+        {
+          "name": "Medicines endpoint",
+          "ok": true,
+          "detail": "0 medicine(s)"
+        },
+        {
+          "name": "Low stock detection working",
+          "ok": true,
+          "detail": "0 low-stock alert(s)"
+        },
+        {
+          "name": "Reminders endpoint",
+          "ok": true,
+          "detail": "0 reminder(s)"
+        },
+        {
+          "name": "7-day history",
+          "ok": true,
+          "detail": "vitals=1, wellness=0"
+        }
+      ]
+    },
+    "Phase 4 - Doctor & Reports": {
+      "passed": 4,
+      "total": 5,
+      "tests": [
+        {
+          "name": "Doctor patient list",
+          "ok": true,
+          "detail": "0 patient(s)"
+        },
+        {
+          "name": "Doctor patient detail",
+          "ok": false,
+          "detail": "sections=error"
+        },
+        {
+          "name": "Access control (patient->403)",
+          "ok": true,
+          "detail": "got 403"
+        },
+        {
+          "name": "Weekly reports endpoint",
+          "ok": true,
+          "detail": "1 report(s)"
+        },
+        {
+          "name": "At least 1 report with AI narrative",
+          "ok": true,
+          "detail": "found"
+        }
+      ]
+    }
+  }
+}

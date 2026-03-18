@@ -1,0 +1,70 @@
+{
+  "score": "9/13",
+  "results": [
+    {
+      "name": "WF9 - Link patient to doctor",
+      "ok": true,
+      "detail": "status=409 (already linked)"
+    },
+    {
+      "name": "WF9 - Doctor patient list",
+      "ok": true,
+      "detail": "0 patient(s)"
+    },
+    {
+      "name": "WF9 - Patient detail has all 6 sections",
+      "ok": false,
+      "detail": "profile=N  vitals=N  wellness=N  labs=N  medicines=N  chats=N"
+    },
+    {
+      "name": "WF9 - Access control (patient->doctor blocked)",
+      "ok": true,
+      "detail": "got 403 - expected 403 Forbidden"
+    },
+    {
+      "name": "WF9 - Doctor adds clinical note",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "name": "WF10 - Trigger weekly report generation",
+      "ok": true,
+      "detail": "report_id=b97a4d51-6e0..."
+    },
+    {
+      "name": "WF10 - Weekly reports list",
+      "ok": true,
+      "detail": "1 report(s)"
+    },
+    {
+      "name": "WF10 - AI narrative generated",
+      "ok": true,
+      "detail": "'Ramesh, I want to start by acknowledging that you took the f...'"
+    },
+    {
+      "name": "WF10 - Highlights generated",
+      "ok": false,
+      "detail": "MISSING"
+    },
+    {
+      "name": "WF10 - Goals for next week",
+      "ok": true,
+      "detail": "3 goals"
+    },
+    {
+      "name": "WF10 - Weekly stats (mood, sleep, adherence)",
+      "ok": true,
+      "detail": "mood=0.0, sleep=0.0h, adherence=0%"
+    },
+    {
+      "name": "WF10 - PDF generated + stored",
+      "ok": false,
+      "detail": "PDF missing"
+    },
+    {
+      "name": "WF10 - Share report with doctor",
+      "ok": true,
+      "detail": "status=200"
+    }
+  ]
+}

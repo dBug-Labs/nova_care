@@ -1,0 +1,80 @@
+{
+  "score": "14/15",
+  "results": [
+    {
+      "name": "WF7 - Log normal vitals (all 7 fields)",
+      "ok": true,
+      "detail": "risk=normal, ai_analysis=set"
+    },
+    {
+      "name": "WF7 - Critical vitals auto-flagged (trigger)",
+      "ok": true,
+      "detail": "risk=critical, flagged=True"
+    },
+    {
+      "name": "WF7 - Log wellness (mood+sleep+water+exercise+diet)",
+      "ok": true,
+      "detail": "log_date=2026-03-18, ai_summary=set"
+    },
+    {
+      "name": "WF7 - Today summary endpoint",
+      "ok": true,
+      "detail": "vitals=Y wellness=Y adherence=Y"
+    },
+    {
+      "name": "WF7 - AI daily summary generated",
+      "ok": true,
+      "detail": "'It sounds like today was a great day for you, with a lovely ...'"
+    },
+    {
+      "name": "WF7 - 7-day history endpoint",
+      "ok": true,
+      "detail": "vitals=5, wellness=1, burnout_alert_field=Y"
+    },
+    {
+      "name": "WF8 - Add medicine (Metformin 500mg)",
+      "ok": true,
+      "detail": "id=dc230ab3-500..."
+    },
+    {
+      "name": "WF8 - Get medicines list",
+      "ok": true,
+      "detail": "3 medicine(s)"
+    },
+    {
+      "name": "WF8 - Today's medicine schedule",
+      "ok": true,
+      "detail": "5 dose(s) scheduled"
+    },
+    {
+      "name": "WF8 - Log medicine intake (taken)",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "WF8 - Stock auto-deducted after intake",
+      "ok": false,
+      "detail": "stock=60 (expected 27) - check log_intake route stock deduction logic"
+    },
+    {
+      "name": "WF8 - Low stock flag (stock=3, alert_at=5)",
+      "ok": true,
+      "detail": "low_stock=True"
+    },
+    {
+      "name": "WF8 - Create water reminder",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "WF8 - Get reminders list",
+      "ok": true,
+      "detail": "2 reminder(s)"
+    },
+    {
+      "name": "WF8 - Manual stock refill (-> 60 tablets)",
+      "ok": true,
+      "detail": "status=200"
+    }
+  ]
+}

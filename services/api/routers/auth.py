@@ -6,7 +6,12 @@ from dependencies import get_current_user
 from typing import Optional
 
 router = APIRouter()
-supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+import asyncio
+from supabase.client import ClientOptions
+
+# Increase timeout to prevent 'read operation timed out'
+opts = ClientOptions(postgrest_client_timeout=30)
+supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY, options=opts)
 
 
 class SignUpRequest(BaseModel):
@@ -26,38 +31,45 @@ class DoctorSignUpExtra(BaseModel):
     hospital_name: Optional[str] = None
 
 
+def do_signup(req: SignUpRequest):
+    # Create Supabase auth user
+    res = supabase.auth.admin.create_user({
+        "email": req.email,
+        "password": req.password,
+        "email_confirm": True,  # auto-confirm for hackathon
+        "user_metadata": {"full_name": req.full_name, "role": req.role}
+    })
+    user_id = res.user.id
+
+    # Create profile record
+    supabase.table("profiles").insert({
+        "id": user_id,
+        "role": req.role,
+        "full_name": req.full_name,
+        "phone": req.phone,
+    }).execute()
+
+    # Create role-specific profile stub
+    if req.role == "patient":
+        supabase.table("patient_profiles").insert({"id": user_id}).execute()
+    elif req.role == "doctor":
+        supabase.table("doctor_profiles").insert({
+            "id": user_id,
+            "specialty": "general",
+            "registration_number": f"PENDING_{user_id[:8]}"
+        }).execute()
+    return user_id
+
+
 @router.post("/signup")
 async def sign_up(req: SignUpRequest):
     try:
-        # Create Supabase auth user
-        res = supabase.auth.admin.create_user({
-            "email": req.email,
-            "password": req.password,
-            "email_confirm": True,  # auto-confirm for hackathon
-            "user_metadata": {"full_name": req.full_name, "role": req.role}
-        })
-        user_id = res.user.id
-
-        # Create profile record
-        supabase.table("profiles").insert({
-            "id": user_id,
-            "role": req.role,
-            "full_name": req.full_name,
-            "phone": req.phone,
-        }).execute()
-
-        # Create role-specific profile stub
-        if req.role == "patient":
-            supabase.table("patient_profiles").insert({"id": user_id}).execute()
-        elif req.role == "doctor":
-            supabase.table("doctor_profiles").insert({
-                "id": user_id,
-                "specialty": "general",
-                "registration_number": "PENDING"
-            }).execute()
-
+        # Run synchronous blocking calls in a thread pool to avoid blocking the FastAPI event loop
+        user_id = await asyncio.to_thread(do_signup, req)
         return {"success": True, "data": {"user_id": user_id}, "error": None}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 

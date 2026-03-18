@@ -17,6 +17,7 @@ export default function AppLayout() {
       <Tabs.Screen name="weekly-reports" options={{ title: 'Reports', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📊</Text> }} />
       <Tabs.Screen name="reports" options={{ title: 'Reports', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📋</Text> }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text> }} />
+      <Tabs.Screen name="report-detail" options={{ href: null }} />
     </Tabs>
   );
 }
