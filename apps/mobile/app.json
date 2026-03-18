@@ -14,15 +14,19 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-notifications", {
-        "icon": "./assets/notification-icon.png",
-        "color": "#0B8A73"
-      }]
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#0B8A73"
+        }
+      ]
     ],
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#0B8A73"
-      }
+      },
+      "package": "com.anonymous.novacare"
     },
     "ios": {
       "supportsTablet": false
