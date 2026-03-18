@@ -12,4 +12,5 @@ export const Colors = {
   danger: '#E24B4A',
   warning: '#F4C430',
   success: '#02C39A',
+  midTxt: '#4A8A80',
 };
