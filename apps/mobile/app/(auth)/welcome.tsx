@@ -22,12 +22,26 @@ export default function WelcomeScreen() {
         >
           <Text style={styles.primaryBtnText}>Get Started</Text>
         </TouchableOpacity>
+        
         <TouchableOpacity
           style={styles.secondaryBtn}
           onPress={() => router.push('/(auth)/signin')}
         >
           <Text style={styles.secondaryBtnText}>Already have an account</Text>
         </TouchableOpacity>
+
+        <View style={styles.doctorSection}>
+          <Text style={styles.doctorLabel}>Are you a healthcare professional?</Text>
+          <View style={styles.doctorButtons}>
+            <TouchableOpacity onPress={() => router.push('/(auth)/doctor-signin')}>
+              <Text style={styles.doctorLinkText}>Doctor Sign In</Text>
+            </TouchableOpacity>
+            <Text style={styles.divider}>|</Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+              <Text style={styles.doctorLinkText}>Register as Doctor</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
       <Text style={styles.disclaimer}>
@@ -49,4 +63,9 @@ const styles = StyleSheet.create({
   secondaryBtn: { borderWidth: 1.5, borderColor: Colors.primary, borderRadius: 14, padding: 18, alignItems: 'center' },
   secondaryBtnText: { color: Colors.primary, fontSize: 16, fontWeight: '600' },
   disclaimer: { fontSize: 10, color: Colors.textMuted, textAlign: 'center', marginBottom: 8 },
+  doctorSection: { marginTop: 24, padding: 16, backgroundColor: `${Colors.primary}08`, borderRadius: 16, borderWidth: 1, borderColor: `${Colors.primary}15` },
+  doctorLabel: { fontSize: 13, color: Colors.textMuted, textAlign: 'center', marginBottom: 10, fontWeight: '500' },
+  doctorButtons: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 15 },
+  doctorLinkText: { color: Colors.primary, fontSize: 15, fontWeight: '700', textDecorationLine: 'underline' },
+  divider: { color: Colors.border, fontSize: 16 },
 });

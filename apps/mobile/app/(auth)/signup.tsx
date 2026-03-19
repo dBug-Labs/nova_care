@@ -17,7 +17,14 @@ export default function SignUpScreen() {
     }
     setLoading(true);
     try {
-      await api.post('/auth/signup', { ...form, role });
+      const payload = {
+        email: form.email,
+        password: form.password,
+        full_name: form.fullName,
+        phone: form.phone,
+        role: role
+      };
+      await api.post('/auth/signup', payload);
       // Sign in immediately
       const { error } = await supabase.auth.signInWithPassword({
         email: form.email, password: form.password

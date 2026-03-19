@@ -38,7 +38,7 @@ export default function DoctorOnboarding() {
         registration_number: data.registrationNumber,
         hospital_name: data.hospitalName || null,
       });
-      router.replace('/(app)');
+      router.replace('/(doctor)');
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Something went wrong');
     }

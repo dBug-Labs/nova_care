@@ -82,6 +82,12 @@ async def complete_doctor_profile(req: DoctorSignUpExtra, user=Depends(get_curre
             "registration_number": req.registration_number,
             "hospital_name": req.hospital_name,
         }).eq("id", user.id).execute()
+        
+        # Mark onboarding as complete in the profiles table
+        supabase.table("profiles").update({
+            "onboarding_complete": True
+        }).eq("id", user.id).execute()
+        
         return {"success": True, "data": None, "error": None}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
